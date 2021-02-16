@@ -1,0 +1,155 @@
+CREATE DATABASE QLBanHang
+
+DROP TABLE VATTU
+CREATE TABLE VATTU
+(
+    MaVTu CHAR(4) NOT NULL PRIMARY KEY,
+    TenVTu NVARCHAR(100) UNIQUE,
+    DvTinh NVARCHAR(10) DEFAULT '',
+    PhanTram REAL
+    CONSTRAINT pt_PhanTram
+    CHECK(PhanTram <= 100 AND PhanTram >= 0)
+)
+DROP TABLE NHACC
+CREATE TABLE NHACC
+(
+    MaNhaCc CHAR(3) NOT NULL PRIMARY KEY,
+    TenNhaCc NVARCHAR(100) UNIQUE,
+    DiaChi NVARCHAR(200) UNIQUE,
+    DienThoai VARCHAR(255)
+    CONSTRAINT dt
+    DEFAULT 'Chưa có'
+)
+DROP TABLE DONDH
+CREATE TABLE DONDH
+(
+    SoDh CHAR(4) PRIMARY KEY,
+    NgayDh DATETIME DEFAULT GETDATE(),
+    MaNhaCc CHAR(3)
+    CONSTRAINT fk_mncc FOREIGN KEY(MaNhaCc) REFERENCES NHACC(MaNhaCc)
+)
+
+DROP TABLE CTDONDH
+CREATE TABLE CTDONDH
+(
+    SoDh CHAR(4) NOT NULL,
+    MaVTu CHAR(4) NOT NULL,
+    SLDat INT,
+    CONSTRAINT slkk
+    CHECK(SLDat > 0),
+    PRIMARY KEY(SoDh, MaVTu),
+    FOREIGN KEY(SoDh) REFERENCES DONDH(SoDh),
+    FOREIGN KEY(MaVTu) REFERENCES VATTU(MaVTu)
+)
+
+DROP TABLE PNHAP
+CREATE TABLE PNHAP
+(
+    SoPn CHAR(4) NOT NULL PRIMARY KEY,
+    NgayNhap DATETIME,
+    SoDh CHAR(4) 
+    CONSTRAINT fk_sdh FOREIGN KEY(SoDh) REFERENCES DONDH(SoDh) 
+)
+
+DROP TABLE CTPNHAP
+CREATE TABLE CTPNHAP
+(
+    SoPn CHAR(4) NOT NULL,
+    MaVTu CHAR(4) NOT NULL,
+    SLNhap INT
+    CONSTRAINT sln CHECK(SLNhap > 0),
+    DgNhap MONEY,
+    CONSTRAINT DgNhap CHECK(DgNhap > 0),
+    CONSTRAINT pk_ctpn PRIMARY KEY(SoPn, MaVTu),
+    CONSTRAINT fk_ctpn FOREIGN KEY(MaVTu) REFERENCES VATTU(MaVTu),
+    CONSTRAINT fk_ctpn2 FOREIGN KEY(SoPn) REFERENCES PNHAP(SoPn)
+)
+DROP TABLE PXUAT
+CREATE TABLE PXUAT
+(
+    SoPx CHAR(4) NOT NULL PRIMARY KEY,
+    NgayXuat DATETIME,
+    TenKh NVARCHAR(100)
+)
+
+DROP TABLE CTPXUAT
+CREATE TABLE CTPXUAT
+(
+    SoPx CHAR(4) NOT NULL,
+    MaVTu CHAR(4) NOT NULL,
+    SLXuat INT
+    CHECK(SLXuat > 0),
+    DgXuat MONEY
+    CHECK(DgXuat > 0)
+    CONSTRAINT pk_ctpx PRIMARY KEY(SoPx, MaVTu),
+    FOREIGN KEY(SoPx) REFERENCES PXUAT(SoPx),
+    FOREIGN KEY(MaVTu) REFERENCES VATTU(MaVTu)
+)
+
+DROP TABLE TONKHO
+CREATE TABLE TONKHO
+(
+    NamThang CHAR(6) NOT NULL,
+    MaVTu CHAR(4) NOT NULL,
+    SLDau INT DEFAULT '0' CHECK(SLDau >= 0),
+    TongSLN INT DEFAULT '0' CHECK(TongSLN >= 0),
+    TongSLX INT DEFAULT '0' CHECK(TongSLX >= 0),
+    SLCuoi AS SLDau + TongSLN - TongSLX,
+    CONSTRAINT pk_tk PRIMARY KEY(NamThang, MaVTu),
+    CONSTRAINT fk_tk FOREIGN KEY(MaVTu) REFERENCES VATTU(MaVTu)
+)
+DELETE FROM NHACC
+INSERT INTO NHACC VALUES
+    ('C01', N'Lê Minh Trí', N'54 Hậu Giang Q6 HCM', '8781024'),
+    ('C02', N'Lê Minh Thạch', N'145 Hùng Vương Mỹ Tho', '111111'),
+    ('C03', N'Hồng Phương', N'154/85 Lê Lai Q1 HCM', '2222222'),
+    ('C04', N'Nhật Thắng', N'198/40 Hương Lọ 14 QTB HCM', '3333333'),
+    ('C05', N'Lưu Quế', N'178 Nguyễn Văn Lương Đà Lạt', '4444444'),
+    ('C06', N'Cao Minh Trung', N'125 Lé Quang Trung Nha Trang', 'Chưa có')
+
+INSERT INTO DONDH VALUES
+    ('D001', N'01/15/2005', 'C03'),
+    ('D002', N'01/30/2005', 'C01'),
+    ('D003', N'02/10/2005', 'C02'),
+    ('D004', N'02/17/2005', 'C05'),
+    ('D005', N'03/01/2005', 'C02'),
+    ('D006', N'03/12/2005', 'C05')
+
+INSERT INTO PNHAP VALUES
+    ('N001', '01/17/2005', 'D001'),
+    ('N002', '01/20/2005', 'D001'),
+    ('N003', '01/31/2005', 'D002'),
+    ('N004', '02/15/2005', 'D003')
+
+DELETE FROM VATTU;
+INSERT INTO VATTU VALUES
+    ('DD01', 'h', 'dolah', 0.5),
+    ('DD02', 'hh', 'dolah', 0.5),
+    ('DD03', 'hhh', 'dolah', 0.5),
+    ('DD04', 'hhhhh', 'dolah', 0.5),
+    ('DD05', 'hhhhhh', 'dolah', 0.5)
+    
+
+INSERT INTO CTDONDH VALUES
+    ('D001', 'DD01', 10),
+    ('D001', 'DD02', 15),
+    ('D002', 'DD02', 30),
+    ('D003', 'TV14', 10),
+    ('D003', 'TV29', 20),
+    ('D004', 'TL90', 10),
+    ('D005', 'TV14', 10),
+    ('D005', 'TV29', 20),
+    ('D006', 'TV14', 01),
+    ('D006', 'TV29', 20),
+    ('D006', 'VD01', 20)
+
+SELECT *
+FROM VATTU
+    
+
+
+
+
+
+
+

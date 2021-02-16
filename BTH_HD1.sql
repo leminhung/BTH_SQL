@@ -1,0 +1,101 @@
+CREATE DATABASE QUANLYBANHANGG
+
+-- ALTER TABLE Sanpham
+-- DROP CONSTRAINT fk_SanPham_Hangsx;
+-- ALTER TABLE Sanpham
+-- ADD FOREIGN KEY (MAHANGSX) REFERENCES Hangsx(MAHANGSX);
+-- DROP TABLE Hangsx
+
+CREATE TABLE Hangsx
+(
+    MAHANGSX NVARCHAR(10) NOT NULL PRIMARY KEY,
+    TENHANG NVARCHAR(20) NOT NULL,
+    DIACHI NVARCHAR(20) NOT NULL,
+    SODT NVARCHAR(20) NOT NULL,
+    --Đang gặp lỗi đoạn này vì chưa phù hợp độ dài
+    EMAIL NVARCHAR(20) NOT NULL
+)
+INSERT INTO Hangsx 
+    VALUES  ('H01', 'Samsung', 'Korea', '011-08271717', 'ss@gmail.com.kr'),
+            ('H02', 'OPPO', 'China', '081-08626262', 'oppo@gmail.com.cn'),
+            ('H03', 'Vinfone', N'Việt Nam', '084-098262626', 'vf@gmail.com.vn')
+       
+
+SELECT *
+FROM Sanpham
+CREATE TABLE Sanpham 
+(
+    MASP NVARCHAR(10) NOT NULL PRIMARY KEY,
+    MAHANGSX NVARCHAR(10) NOT NULL,
+    TENSP NVARCHAR(20) NOT NULL,
+    SOLUONG INT DEFAULT 0 NOT NULL,
+    MAUSAC NVARCHAR(20) NOT NULL,
+    GIABAN MONEY,
+    DONVITINH NVARCHAR(20),
+    MOTA NVARCHAR(MAX),
+    CONSTRAINT fk_SanPham_Hangsx FOREIGN KEY(MAHANGSX) REFERENCES Hangsx(MAHANGSX)
+)
+DELETE FROM Sanpham
+INSERT INTO Sanpham
+    VALUES  ('SP01', 'H02', 'F1 Plus', 100, N'Xám', 7000000, N'Chiếc', N'Hàng cận cao cấp'),
+            ('SP02', 'H01', 'Galaxy Note11', 50, N'Đỏ', 19000000, N'Chiếc', N'Hàng cao cấp'),
+            ('SP03', 'H02', 'F3 lite', 200, N'Nâu', 3000000, N'Chiếc', N'Hàng cao cấp'),
+            ('SP04', 'H03', 'Vjoy3', 200, N'Xám', 1500000, N'Chiếc', N'Hàng phổ thông'),
+            ('SP05', 'H01', 'Galaxy V21', 500, N'Nâu', 80000000, N'Chiếc', N'Hàng cận cao cấp')
+
+
+CREATE TABLE NHANVIEN
+(
+    MANV NCHAR(10) NOT NULL PRIMARY KEY,
+    TENNV NVARCHAR(20) NOT NULL,
+    GIOITINH NCHAR(10) NOT NULL,
+    DIACHI NVARCHAR(20) NOT NULL,
+    SODT NVARCHAR(10) NOT NULL,
+    EMAIL NVARCHAR(20) NOT NULL,
+    PHONG NVARCHAR(20)
+
+)
+
+INSERT INTO NHANVIEN
+    VALUES  ('NV01', N'Nguyễn Thị Thu', N'Nữ', N'Hà Nội','0982626521', 'thu@gmail.com', N'Kế toán'),
+            ('NV02', N'Lê Văn Nam', N'Nam', N'Bắc Ninh','0972525252', 'nam@gmail.com', N'Vật tư'),
+            ('NV03', N'Trần Hòa Bình', N'Nữ', N'Hà Nội','0328388388', 'hb@gmail.com', N'Kế toán')
+
+CREATE TABLE NHAP
+(
+    SOHDN NVARCHAR(10) NOT NULL,
+    MASP NVARCHAR(10) NOT NULL,
+    MANV NCHAR(10) NOT NULL,
+    NGAYNHAP DATE,
+    SOLUONGN INT,
+    DONGIAN MONEY,
+    CONSTRAINT pk_NHAP PRIMARY KEY(SOHDH, MASP),
+    CONSTRAINT fk_NHAP_NHANVIEN FOREIGN KEY(MANV) REFERENCES NHANVIEN(MANV),
+    CONSTRAINT fk_NHAP_Sanpham FOREIGN KEY(MASP) REFERENCES Sanpham(MASP)
+)
+INSERT INTO NHAP
+    VALUES  ('N01', 'SP02', 'NV01', '02-05-2019', 10, 17000000),
+            ('N02', 'SP01', 'NV02', '04-07-2020', 10, 6000000),
+            ('N03', 'SP04', 'NV02', '05-17-2020', 10, 1200000),
+            ('N04', 'SP01', 'NV03', '03-22-2020', 10, 6200000),
+            ('N05', 'SP05', 'NV01', '07-05-2020', 10, 7000000)
+DROP TABLE XUAT
+EXEC sp_RENAME 'XUAT.SOLUONGN', 'SOLUONGX', 'COLUMN'
+CREATE TABLE XUAT
+(
+    SOHDX NVARCHAR(10) NOT NULL,
+    MASP NVARCHAR(10) NOT NULL,
+    MANV NCHAR(10) NOT NULL,
+    NGAYXUAT DATE,
+    SOLUONGX INT,
+    CONSTRAINT pk_XUAT PRIMARY KEY(SOHDX, MASP),
+    CONSTRAINT fk_XUAT_NHANVIEN FOREIGN KEY(MANV) REFERENCES NHANVIEN(MANV),
+    CONSTRAINT fk_XUAT_Sanpham FOREIGN KEY(MASP) REFERENCES Sanpham(MASP)
+)
+INSERT INTO XUAT
+    VALUES  ('X01', 'SP03', 'NV02', '06-14-2020', 5),
+            ('X02', 'SP01', 'NV03', '03-05-2019', 3),
+            ('X03', 'SP02', 'NV01', '12-12-2020', 1),
+            ('X04', 'SP03', 'NV02', '06-02-2020', 2),
+            ('X05', 'SP05', 'NV01', '05-18-2020', 1)
+            

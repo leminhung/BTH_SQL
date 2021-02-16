@@ -1,0 +1,13 @@
+			
+1. sudo apt update
+2. sudo apt install mysql-server
+3. sudo mysql
+4. mysql> CREATE USER 'sammy'@'localhost' IDENTIFIED BY 'password';
+Thay đổi tên và mật khẩu để tạo username
+5. GRANT ALL PRIVILEGES ON *.* TO 'sammy'@'localhost' WITH GRANT OPTION;
+Để gán tất cả các quyền cho username vừa tạo
+
+
+
+
+
