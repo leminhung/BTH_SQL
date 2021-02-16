@@ -69,7 +69,7 @@ FROM Sanpham x JOIN NHAP y ON x.MASP = y.MASP
 WHERE YEAR(NGAYNHAP) = 2020 AND YEAR(NGAYXUAT) = 2020
 
 
--- 10. Hãy đưa ra danh sách các nhân viên vừa nhập vừa xuất.
+-- 10. Hãy đưa ra danh sách các nhân viên vừa nhập vừa xuất..
 SELECT TENNV, SODT, PHONG, GIOITINH, DIACHI, EMAIL
 FROM NHANVIEN
 WHERE MANV IN (SELECT MANV FROM NHAP) 
