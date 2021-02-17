@@ -90,118 +90,81 @@ VALUES(4,'P004',5)
 INSERT INTO DONG_PHIEU_XUAT(SoPhieu,MaHang,SoLuongXuat)
 VALUES(4,'P005',6)
 
---1 Đưa ra mã, tên nhà cung cấp, cung cấp sản phẩm có giá >40  và tên bắt đầu bởi chữ 'S'
-select n.MaNCC, n.TenNCC 
-from NHACC n inner join HANG h on n.MaNCC = h.MaNCC 
-where DonGia >10 and TenNCC like 'S%' 
+--1 Đưa ra mã, tên nhà cung cấp, cung cấp sản phẩm có giá > 10  và tên bắt đầu bởi chữ 'S'
+SELECT x.MaNCC, TenNCC
+FROM NHACC x JOIN HANG y ON x.MaNCC = y.MaNCC
+WHERE DonGia > 10 AND TenNCC LIKE 'S%'
+
 
 -- 2. Đưa ra các mặt hàng có giá nhỏ hơn giá của tất cả mặt hàng do hãng SamSung cung cấp	
+--C1
 SELECT MaHang, TenHang, DonGia
-FROM HANG JOIN NHACC
-ON HANG.MaNCC = NHACC.MaNCC
-WHERE DonGia <= ALL (SELECT DonGia FROM HANG JOIN NHACC
-ON HANG.MaNCC = NHACC.MaNCC
-WHERE TenNCC = 'SamSung') 
+FROM HANG x JOIN NHACC y ON x.MaNCC = y.MaNCC
+WHERE DonGia <= ALL(SELECT DonGia 
+				   FROM HANG x JOIN NHACC y ON x.MaNCC = y.MaNCC
+				   WHERE TenHang = 'Samsung')
+--C2
+SELECT MaHang, TenHang, DonGia
+FROM HANG
+WHERE DonGia <= ALL(SELECT DonGia 
+				   FROM HANG x JOIN NHACC y ON x.MaNCC = y.MaNCC
+				   WHERE TenHang = 'Samsung')
+
 
 -- 3. Đưa ra các phiếu xuất bán từ 2 mặt hàng trở lên
---C1
-select x.SoPhieu,NgayXuat,MaCuaHang 
-from DONG_PHIEU_XUAT x join PHIEU_XUAT y on x.SoPhieu = y.SoPhieu 
-group by x.SoPhieu,NgayXuat,MaCuaHang 
-having count(MaHang)>=2 
-
---C2
+SELECT MaCuaHang, NgayXuat, x.SoPhieu
+FROM PHIEU_XUAT x JOIN DONG_PHIEU_XUAT y ON x.SoPhieu = y.SoPhieu
+GROUP BY MaCuaHang, NgayXuat, x.SoPhieu
+HAVING COUNT(MaHang) >= 2
 
 --4. Đưa ra các mặt hàng có số lượng bán nhiều nhất
-
-SELECT Hang.MaHang, tenHang, SUM(soluongXuat) AS Soluongban 
-FROM Hang INNER JOIN dbo.DONG_PHIEU_XUAT ON DONG_PHIEU_XUAT.MaHang = HANG.MaHang 
-GROUP BY Hang.MaHang, tenHang 
-HAVING SUM(soluongXuat) >=all (SELECT SUM(soluongXuat) 
-                              FROM DONG_PHIEU_XUAT 
-                              GROUP BY MaHang) 
-
-
-
+SELECT x.MaHang, TenHang, DonGia
+FROM HANG x JOIN DONG_PHIEU_XUAT y ON x.MaHang = y.MaHang
+WHERE SoLuongXuat = (SELECT MAX(SoLuongXuat)
+					 FROM HANG x JOIN DONG_PHIEU_XUAT y ON x.MaHang = y.MaHang
+					 )
 
 -- 5. Đưa ra tên nhà cung cấp, cung cấp sản phẩm có đơn giá đắt nhất
+SELECT TenNCC
+FROM NHACC x JOIN HANG y ON x.MaNCC = y.MaNCC
+WHERE DonGia = (SELECT MAX(DonGia) 
+				FROM NHACC x JOIN HANG y ON x.MaNCC = y.MaNCC
+				)
 
--- SELECT TenNCC
--- FROM NHACC x INNER JOIN HANG y ON x.MaNCC = y.MaHang
--- WHERE MaHang = (SELECT MAX(DonGia)
---                 FROM HANG)
-
-SELECT TenNCC 
-FROM NHACC 
-WHERE MaNCC in (SELECT MaNCC FROM HANG WHERE DonGia = (SELECT MAX(DonGia) FROM HANG)) 
 
 -- 6. Đưa ra danh sách sản phẩm bán chạy nhất trong tháng hiện tại
-
-SELECT Hang.MaHang, tenHang, SUM(soluongXuat) AS Soluongban 
-FROM Hang INNER JOIN dbo.DONG_PHIEU_XUAT ON DONG_PHIEU_XUAT.MaHang = HANG.MaHang 
-          INNER JOIN PHIEU_XUAT ON PHIEU_XUAT.SoPhieu = DONG_PHIEU_XUAT.SoPhieu
+SELECT y.MaHang, TenHang, SUM(SoLuongXuat) AS N'Tổng sản phẩm'
+FROM DONG_PHIEU_XUAT x JOIN HANG y ON x.MaHang = y.MaHang
+					   JOIN PHIEU_XUAT z ON x.SoPhieu = z.SoPhieu
 WHERE MONTH(NgayXuat) = MONTH(GETDATE())
-GROUP BY Hang.MaHang, tenHang 
-HAVING SUM(soluongXuat) >=all (SELECT SUM(soluongXuat) 
-                              FROM DONG_PHIEU_XUAT x JOIN PHIEU_XUAT y
-                              ON x.SoPhieu = y.SoPhieu
-                              WHERE MONTH(NgayXuat) = MONTH(GETDATE())
-                              GROUP BY MaHang) 
+GROUP BY y.MaHang, TenHang
+HAVING SUM(SoLuongXuat) >= ALL (SELECT SUM(SoLuongXuat)
+								FROM DONG_PHIEU_XUAT x JOIN PHIEU_XUAT z ON x.SoPhieu = z.SoPhieu
+								WHERE MONTH(NgayXuat) = MONTH(GETDATE())
+								GROUP BY x.MaHang)
+								
 -- 7. Đưa ra ds sản phẩm chưa từng bán
---C1
--- SELECT *
--- FROM HANG
--- WHERE MaHang NOT IN (SELECT MaHang
---             FROM DONG_PHIEU_XUAT)
-
-
+SELECT *
+FROM HANG
+WHERE MaHang NOT IN (SELECT MaHang
+				     FROM DONG_PHIEU_XUAT)
 
 --9. Cập nhật số lượng mua của phiếu 1, mặt hàng 'P001' thành 5 sản phẩm
-UPDATE DONG_PHIEU_XUAT
-SET SoLuongXuat = 5
-WHERE SoPhieu = 1 AND MaHang = 'P001'
 
--- SELECT *
--- FROM DONG_PHIEU_XUAT
 
 
 --8.Cập nhật lại giá các sản phẩm của nhà cung cấp LG giảm 10%, hãng Samsung tăng lên 5%
-update dbo.HANG 
-set DonGia=DonGia * CASE 
-WHEN TenNCC like 'Lg' THEN 0.9 
-WHEN TenNCC like 'Samsung' THEN 1.05 
-else 1 END from dbo.HANG join dbo.NHACC on dbo.HANG.MaNCC = dbo.NHACC.MaNCC 
+
 
 -- 9. Xóa mặt hàng 'P002' trong phiếu 2
 
-DELETE FROM DONG_PHIEU_XUAT
-WHERE SoPhieu = 2 AND MaHang = 'P002'
---10 Tạo view đưa ra tên hàng, đơn giá và số lượng có của mỗi mặt hàng. Danh sách sắp xếp theo số lượng có
 
-CREATE VIEW v_Cau10
-AS
-SELECT TenHang, DonGia, SoLuongCo
-FROM HANG
-
-
-SELECT *FROM v_Cau10
 --11: Tạo view đưa ra tên hàng và số lượng xuất của mỗi mặt hàng
 
-CREATE VIEW v_Cau11
-AS
-SELECT TenHang, SoLuongXuat
-FROM DONG_PHIEU_XUAT x INNER JOIN HANG y
-ON x.MaHang = y.MaHang
 
-SELECT *
-FROM v_Cau11
 
 -- 12. Tạo view đưa ra các phiếu xuất xuất hàngtrong năm nay thông tn bao gồm, SoPhieu, NgayXuat, MaHang, TenHang, ThanhTien
-CREATE VIEW v_Cau12
-AS
-SELECT SoPhieu, NgayXuat, MaHang, TenHang, DonGia*SoLuongXuat AS ThanhTien
-FROM DONG_PHIEU_XUAT x JOIN PHIEU_XUAT y ON x.SoPhieu = y.SoPhieu
-                       JOIN HANG z ON x.MaHang = z.MaHang
+
 
 
 
