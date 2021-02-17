@@ -150,29 +150,77 @@ WHERE MaHang NOT IN (SELECT MaHang
 				     FROM DONG_PHIEU_XUAT)
 
 --9. Cập nhật số lượng mua của phiếu 1, mặt hàng 'P001' thành 5 sản phẩm
+UPDATE DONG_PHIEU_XUAT
+SET SoLuongXuat = 5
+WHERE MaHang = 'P001' AND SoPhieu = 1
 
-
+SELECT *
+FROM DONG_PHIEU_XUAT
 
 --8.Cập nhật lại giá các sản phẩm của nhà cung cấp LG giảm 10%, hãng Samsung tăng lên 5%
+UPDATE HANG
+SET DonGia = DonGia * CASE
+WHEN TenNCC LIKE 'LG' THEN 0.9
+WHEN TenNCC LIKE 'Samsung' THEN 1.05
+ELSE 1 END
+FROM HANG x JOIN NHACC y ON x.MaNCC = y.MaNCC
+
+SELECT *
+FROM DONG_PHIEU_XUAT
 
 
 -- 9. Xóa mặt hàng 'P002' trong phiếu 2
+DELETE FROM DONG_PHIEU_XUAT
+WHERE MaHang = 'P002' AND SoPhieu = 2
 
 
 --11: Tạo view đưa ra tên hàng và số lượng xuất của mỗi mặt hàng
+CREATE VIEW v_c11
+AS 
+SELECT TENHANG, SOLUONGXUAT
+FROM HANG x JOIN DONG_PHIEU_XUAT y ON x.MaHang = y.MaHang
 
-
+SELECT * 
+FROM v_c11
 
 -- 12. Tạo view đưa ra các phiếu xuất xuất hàngtrong năm nay thông tn bao gồm, SoPhieu, NgayXuat, MaHang, TenHang, ThanhTien
+CREATE VIEW v_c12
+AS
+SELECT x.SoPhieu, NgayXuat, x.MaHang, TenHang, DonGia*SoLuongXuat AS N'Thanh tien'
+FROM DONG_PHIEU_XUAT x JOIN HANG y ON x.MaHang = y.MaHang
+					   JOIN PHIEU_XUAT z ON x.SoPhieu = z.SoPhieu
 
-
-
+SELECT *
+FROM v_c12
 
 --13. Tao View thống kê số lượng hàng bán của từng mặt hàng gồm thông tin: Mã hàng, tên hàng, số lượng bán
+CREATE VIEW v_c13
+AS
+SELECT  x.MaHang, TenHang, SUM(SoLuongXuat) AS 'Số lượng bán'
+FROM HANG x JOIN DONG_PHIEU_XUAT y ON x.MaHang = y.MaHang
+GROUP BY x.MaHang, TenHang
+
 
 -- 14. Hãy tạo View đưa ra thống kê tiền hàng bán theo từng phiếu xuất gồm: SoPhieu,NgayBan,Tổng tiền (tiền=SoLuong*DonGia)
+CREATE VIEW v_c14
+AS
+SELECT x.SoPhieu, NgayXuat, SUM(SoLuongXuat*DonGia) AS N'Tổng tiền'
+FROM DONG_PHIEU_XUAT x JOIN HANG y ON x.MaHang = y.MaHang
+					   JOIN PHIEU_XUAT z ON x.SoPhieu = z.SoPhieu
+GROUP BY x.SoPhieu, NgayXuat
+
+SELECT *
+FROM v_c14
 
 --15 Tạo view thống kê số lượng hàng bán theo năm, tháng bao gồm thông tin: năm, tháng, mã hàng, tổng số lượng bán
+CREATE VIEW v_c15
+AS 
+SELECT YEAR(NgayXuat) AS 'Năm', MONTH(NgayXuat) AS 'Tháng', MaHang, SUM(SoLuongXuat) AS 'Tổng sl bán'
+FROM DONG_PHIEU_XUAT x JOIN PHIEU_XUAT y ON x.SoPhieu = y.SoPhieu
+GROUP BY MaHang, YEAR(NgayXuat), MONTH(NgayXuat)
+
+SELECT *
+FROM v_c15
 
 
 
