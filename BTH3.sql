@@ -37,7 +37,7 @@ FROM Sanpham x JOIN NHAP y ON x.MASP = y.MASP
 WHERE YEAR(NGAYNHAP) = 2020
 GROUP BY TENHANG, x.MAHANGSX
 
--- 6. Hãy thống kê xem tổng lượng tiền xuất của mỗi nhân viên trong năm 2018 là bao
+-- 6. Hãy thống kê xem tổng lượng tiền xuất của mỗi nhân viên trong năm 2020 là bao
 -- nhiêu.
 SELECT x.MANV, TENNV, SUM(SOLUONGX*GIABAN) AS N'Tổng tiền xuất'
 FROM XUAT x JOIN NHANVIEN y ON x.MANV = y.MANV
