@@ -39,7 +39,7 @@ INSERT INTO NHACC VALUES ('S056', N'Công ty Vi?t Nam', 'HN', '09666147')
 
 
 
---BT2: 
+--BT2: Chèn dữ liệu vào dòng phiếu xuất và kiểm tra các rằng buộc dữ liệu
 --1. Số phiếu xuất phải tồn tại trong bảng phiếu xuất
 --2. Số lượng xuất phải nhỏ hơn hoặc bằng số lượng có
 --3. Số lượng có của mặt hàng phải giảm đi số lượng xuất
@@ -48,7 +48,7 @@ ON DONG_PHIEU_XUAT
 FOR INSERT
 AS
 BEGIN
-    IF NOT EXISTS(SELECT * FROM PHIEU_XUAT WHERE SoPhieu IN(SELECT SoPhieu FROM inserted))
+    IF NOT EXISTS(SELECT * FROM PHIEU_XUAT x JOIN inserted y ON x.SoPhieu = y.SoPhieu WHERE x.SoPhieu = y.SoPhieu)
         BEGIN
             PRINT N'Số phiếu không tồn tại'
             ROLLBACK TRANSACTION
@@ -81,11 +81,14 @@ BEGIN
     FROM HANG x JOIN inserted y ON x.MaHang = y.MaHang
 END
 
-insert into DONG_PHIEU_XUAT values ('12', 'P001', 16)
+SELECT * FROM HANG
+SELECT * FROM DONG_PHIEU_XUAT
+insert into DONG_PHIEU_XUAT values ('7', 'P002', 500)
 insert into DONG_PHIEU_XUAT values ('4', 'H001', 16)
 insert into DONG_PHIEU_XUAT values ('1', 'P003', 16)
 insert into DONG_PHIEU_XUAT values ('1', 'P004', 7)
-insert into DONG_PHIEU_XUAT values ('3', 'P004', 392)
+insert into DONG_PHIEU_XUAT values ('3', 'P005', 392)
+insert into DONG_PHIEU_XUAT values ('4', 'P006', 100)
 
 ALTER TABLE DONG_PHIEU_XUAT
 NOCHECK CONSTRAINT ALL

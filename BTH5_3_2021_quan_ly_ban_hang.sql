@@ -26,7 +26,6 @@ EXECUTE sp_Vd1
 
 
 --VD2: Viết thủ tục nội tại tính tổng giá trị một phiếu xuất
---Xem lại chỗ này thật kĩ tại sao @sopx lại có giá trị như vậy
 CREATE PROCEDURE sp_VD2 @sopx INT
 AS
     DECLARE @tong INT
@@ -41,6 +40,8 @@ AS
 
 EXECUTE sp_VD2 3
 EXEC sp_VD2 @sopx = 10
+select * from DONG_PHIEU_XUAT
+select * from HANG
 
 
 --Tham số OUT PUT
@@ -54,7 +55,7 @@ AS
 
 
 DECLARE @kq INT
-EXEC sp_VD3 2, @kq OUTPUT
+EXEC sp_VD3 3, @kq OUTPUT
 IF(@kq is null)
         PRINT N'Khong co phieu xuat nao'
 ELSE    
@@ -68,7 +69,7 @@ ELSE
 
 
 --Lưu ý phải cùng kiểu dữ liệu
-DROP PROCEDURE sp_VD4
+
 CREATE PROCEDURE sp_VD4 @tenncc VARCHAR(50), @tenhang VARCHAR(50)
 AS
     DECLARE @tong INT
@@ -86,7 +87,7 @@ AS
 	--Kiểm tra nhà cc có trong bảng NCC hay ko
 	if not exists(select * from NHACC where TenNCC = @tenncc)
 	begin
-        RAISERROR(N'Nhà cung cấp không tồn tại')
+        RAISERROR(N'Nhà cung cấp không tồn tại', 16, 1)
 		--print N'Nhà cung cấp không tồn tại'
 		return --Thoát khỏi CT
 	end
@@ -122,6 +123,10 @@ SELECT * FROM NHACC
 
 --THỦ TỤC CẬP NHẬT DỮ LIỆU
 --VD5: Viết thủ tục thêm dữ liệu vào bảng HANG
+--Mã hàng 0 tồn tại
+--Nhà cung cấp tồn tại
+--Đơn giá phải lớn hơn 0
+--Số lượng phải lớn hơn 0
 
 ALTER PROC sp_cau5 @mah char(5), @tenh nvarchar(50), @gia int, @sl int, @mancc char(4)
 AS
@@ -151,6 +156,7 @@ exec sp_cau5 'P001', 'Máy giặt', 12, 120, 'S002'
 exec sp_cau5 'P011', 'Máy giặt', 12, 120, 'S010'
 exec sp_cau5 'P011', 'Máy giặt', 12, 120, 'S002'
 exec sp_cau5 'P012', 'Máy giặt', -3 , 120, 'S002'
+select * from HANG
 
 
 

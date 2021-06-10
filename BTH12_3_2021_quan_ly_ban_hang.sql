@@ -153,7 +153,6 @@ BEGIN
 END
 
 
-
 --VD4: Viết hàm trả lại mã hàng, tên hàng, và số lượng đã bán của từng mặt hàng
 --      của một nhà cung cập có tên do người dùng nhập
 
